@@ -7,10 +7,11 @@ import { GlobalStyles } from "../constants/styles";
 import { ExpensesContext } from "../store/expenses-context";
 
 function ManageExpense({ route, navigation }) {
-
-  const expenseCtx = useContext(ExpensesContext)
+  const expenseCtx = useContext(ExpensesContext);
   const editedExpenseId = route.params?.expenseId;
   const isEditing = !!editedExpenseId;
+
+  const selectedExpense = expenseCtx.expenses.find(expense => expense.id === editedExpenseId);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -20,30 +21,32 @@ function ManageExpense({ route, navigation }) {
 
   function deleteExpenseHandler() {
     expenseCtx.deleteExpense(editedExpenseId);
-    
+
     navigation.goBack();
   }
-    
+
   function cancelHandler() {
     navigation.goBack();
   }
 
   function confirmHandler(expenseData) {
     if (isEditing) {
-      expenseCtx.updateExpense(
-        editedExpenseId,
-        expenseData,
-      );
+      expenseCtx.updateExpense(editedExpenseId, expenseData);
     } else {
-        expenseCtx.addExpense(expenseData);
+      expenseCtx.addExpense(expenseData);
     }
     navigation.goBack();
   }
 
   return (
     <View style={styles.container}>
-      <ExpenseForm submitButtonLabel={isEditing ? 'Update' : 'Add'} onCancel={cancelHandler} onSubmit={confirmHandler}/>
-      
+      <ExpenseForm
+        submitButtonLabel={isEditing ? "Update" : "Add"}
+        onCancel={cancelHandler}
+        onSubmit={confirmHandler}
+        defaultValues={selectedExpense}
+      />
+
       <View style={styles.deleteContainer}>
         {isEditing && (
           <IconButton
@@ -51,7 +54,7 @@ function ManageExpense({ route, navigation }) {
             color={GlobalStyles.colors.error500}
             size={36}
             onPress={() => {
-                deleteExpenseHandler();
+              deleteExpenseHandler();
             }}
           />
         )}
@@ -74,5 +77,5 @@ const styles = StyleSheet.create({
     borderTopWidth: 2,
     borderTopColor: GlobalStyles.colors.primary200,
     alignItems: "center",
-  }
+  },
 });
